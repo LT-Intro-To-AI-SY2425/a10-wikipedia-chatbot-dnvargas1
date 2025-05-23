@@ -92,6 +92,55 @@ def get_polar_radius(planet_name: str) -> str:
 
     return match.group("radius")
 
+def get_country_capital(country_name: str) -> str:
+    """Gets the capital city of the given country
+
+    Args:
+        country_name - name of the country to get the capital of
+
+    Returns:
+        capital city of the given country
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(country_name)))
+    pattern = r"(?<=Capital)(and largest city)?(?P<capital>[A-Z][\D]+)"
+    error_text = "Page infobox has no capital city information"
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("capital")
+
+def get_country_population(country_name: str) -> str:
+    """Gets the population of the given country
+
+    Args:
+        country_name - name of the country to get the population of
+
+    Returns:
+        population of the given country
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(country_name)))
+    pattern = r"Population.*?Q1 estimate[^\d]*(?P<estimate>[\d,]+)"
+    error_text = "Page infobox has no population information"
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("estimate")
+
+def get_largest_city(country_name: str) -> str:
+    """Gets the largest city of the given country
+
+    Args:
+        country_name - name of the country to get the largest city of
+
+    Returns:
+        largest city of the given country
+    """
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(country_name)))
+    print(infobox_text)
+    pattern = r"Largest\s?city[:\s]*?(?P<city>[A-Za-z]+(?:\s[A-Za-z]+)*)(?=\s[A-Z][a-z]+|languages|Demonym|$)"
+    error_text = "Page infobox has no largest city information"
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("city")
+
 
 def get_birth_date(name: str) -> str:
     """Gets birth date of the given person
@@ -140,6 +189,41 @@ def polar_radius(matches: List[str]) -> List[str]:
     """
     return [get_polar_radius(matches[0])]
 
+def country_capital(matches: List[str]) -> List[str]:
+    """Returns capital city of named country in matches
+
+    Args:
+        matches - match from pattern of country's name to find capital city of
+
+    Returns:
+        capital city of named country
+    """
+    return [get_country_capital(" ".join(matches))]
+
+def largest_city(matches: List[str]) -> List[str]:
+    """Returns largest city of named country in matches
+
+    Args:
+        matches - match from pattern of country's name to find largest city of
+
+    Returns:
+        largest city of the named country
+    """
+    return [get_largest_city(" ".join(matches))]
+
+def country_population(matches: List[str]) -> List[str]:
+    """Returns population of named country in matches
+
+    Args:
+        matches - match from pattern of country's name to find population of
+
+    Returns:
+        population of the named country
+    """
+    return [get_country_population(matches[0])]
+
+
+
 
 # dummy argument is ignored and doesn't matter
 def bye_action(dummy: List[str]) -> None:
@@ -156,6 +240,9 @@ Action = Callable[[List[str]], List[Any]]
 pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
     ("what is the polar radius of %".split(), polar_radius),
+    ("what is the population of %".split(), country_population),
+    ("what is the largest city in %".split(), largest_city),
+    ("what is the capital of %".split(), country_capital),
     (["bye"], bye_action),
 ]
 
@@ -184,7 +271,7 @@ def search_pa_list(src: List[str]) -> List[str]:
 def query_loop() -> None:
     """The simple query loop. The try/except structure is to catch Ctrl-C or Ctrl-D
     characters and exit gracefully"""
-    print("Welcome to the movie database!\n")
+    print("Welcome to the Wikipedia database!\n")
     while True:
         try:
             print()
