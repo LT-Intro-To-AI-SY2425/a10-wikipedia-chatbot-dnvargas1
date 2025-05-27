@@ -134,7 +134,7 @@ def get_largest_city(country_name: str) -> str:
         largest city of the given country
     """
     infobox_text = clean_text(get_first_infobox_text(get_page_html(country_name)))
-    pattern = r"Largest\s?city[:\s]*?(?P<city>[A-Za-z]+(?:\s[A-Za-z]+)*?)(?=\s[A-Z][a-z]+:| languages| Official|$)"
+    pattern = r"Largest\s?city[:\s]*?(?P<city>[A-Za-z]+(?:\s[A-Za-z]+)*)(?=\s+(?:Languages|Demonym|Capital|Country|Population|Area|Region|Time zone|Official|$))"
     error_text = "Page infobox has no largest city information"
     match = get_match(infobox_text, pattern, error_text)
 
